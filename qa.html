@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TechMart — Everyday Electronics</title>
+<style>
+  :root{
+    --navy:#12233d;
+    --navy-2:#1c3357;
+    --gold:#d9a441;
+    --paper:#f6f4ef;
+    --ink:#1b1b1b;
+    --muted:#6b7280;
+    --danger:#c0392b;
+    --line:#e3ded2;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:'Segoe UI', Helvetica, Arial, sans-serif;
+    background:var(--paper);
+    color:var(--ink);
+  }
+  header{
+    background:var(--navy);
+    color:#fff;
+    padding:14px 24px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+  }
+  .logo{font-weight:700;font-size:20px;letter-spacing:.5px;}
+  .logo span{color:var(--gold);}
+  nav{display:flex;gap:22px;align-items:center;}
+  nav a{color:#f1eee6;text-decoration:none;font-size:14px;cursor:pointer;}
+  nav a:hover{color:var(--gold);}
+  #hamburger{display:none;background:none;border:none;color:#fff;font-size:22px;cursor:pointer;}
+  .cart-pill{background:var(--gold);color:var(--navy);padding:5px 12px;border-radius:14px;font-size:13px;font-weight:600;cursor:pointer;}
+
+  .banner{
+    background:linear-gradient(90deg,var(--navy),var(--navy-2));
+    color:#fff;padding:34px 24px;text-align:center;
+  }
+  .banner h1{margin:0 0 6px;font-size:26px;}
+  .banner p{margin:0;color:#cfd6e4;font-size:14px;}
+
+  main{max-width:1080px;margin:0 auto;padding:28px 20px 80px;}
+
+  .toolbar{display:flex;gap:12px;flex-wrap:wrap;align-items:center;margin-bottom:20px;}
+  .toolbar input[type=text]{
+    flex:1;min-width:180px;padding:10px 12px;border:1px solid var(--line);border-radius:6px;font-size:14px;
+  }
+  .toolbar select{padding:10px 12px;border:1px solid var(--line);border-radius:6px;font-size:14px;background:#fff;}
+
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:18px;}
+  .card{
+    background:#fff;border:1px solid var(--line);border-radius:8px;padding:14px;position:relative;
+  }
+  .card img{width:100%;height:130px;object-fit:cover;border-radius:6px;background:#eee;}
+  .card h3{font-size:15px;margin:10px 0 4px;}
+  .card .price{font-weight:700;color:var(--navy);font-size:15px;}
+  .card .old-price{color:var(--muted);text-decoration:line-through;font-size:12px;margin-left:6px;}
+  .card button{
+    margin-top:10px;width:100%;padding:9px;background:var(--navy);color:#fff;border:none;border-radius:6px;
+    cursor:pointer;font-size:13px;
+  }
+  .card button:hover{background:var(--navy-2);}
+  .badge{position:absolute;top:10px;right:10px;background:var(--danger);color:#fff;font-size:11px;padding:3px 7px;border-radius:4px;}
+
+  .low-contrast{color:#cfcabc;font-size:12px;margin-top:6px;}
+
+  section.panel{background:#fff;border:1px solid var(--line);border-radius:8px;padding:20px;margin-top:34px;}
+  section.panel h2{margin-top:0;font-size:18px;color:var(--navy);}
+
+  table{width:100%;border-collapse:collapse;font-size:14px;}
+  th,td{text-align:left;padding:10px 8px;border-bottom:1px solid var(--line);}
+  td.qty input{width:52px;padding:5px;border:1px solid var(--line);border-radius:4px;}
+  td.remove{color:var(--danger);cursor:pointer;font-size:13px;}
+  .cart-total{text-align:right;font-size:16px;font-weight:700;margin-top:14px;}
+
+  .promo-row{display:flex;gap:8px;margin-top:14px;}
+  .promo-row input{flex:1;padding:9px 10px;border:1px solid var(--line);border-radius:6px;}
+  .promo-row button{padding:9px 16px;background:var(--gold);border:none;border-radius:6px;font-weight:600;cursor:pointer;}
+
+  form.checkout{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:10px;}
+  form.checkout label{font-size:13px;color:var(--muted);display:block;margin-bottom:4px;}
+  form.checkout input{width:100%;padding:9px 10px;border:1px solid var(--line);border-radius:6px;}
+  form.checkout .full{grid-column:1 / -1;}
+  .place-order{
+    grid-column:1/-1;background:var(--navy);color:#fff;border:none;padding:12px;border-radius:6px;
+    font-size:15px;cursor:pointer;margin-top:6px;
+  }
+
+  footer{background:var(--navy);color:#cfd6e4;text-align:center;padding:20px;font-size:12px;margin-top:60px;}
+  footer a{color:var(--gold);text-decoration:none;}
+
+  .toast{
+    position:fixed;bottom:20px;right:20px;background:var(--navy);color:#fff;padding:12px 18px;border-radius:6px;
+    font-size:13px;display:none;box-shadow:0 4px 14px rgba(0,0,0,.2);
+  }
+
+  @media (max-width:640px){
+    nav{display:none;position:absolute;top:56px;right:0;background:var(--navy);flex-direction:column;padding:14px;gap:14px;}
+    #hamburger{display:block;}
+    form.checkout{grid-template-columns:1fr;}
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Tech<span>Mart</span></div>
+  <nav id="mainNav">
+    <a href="#catalog">Shop</a>
+    <a href="#cart">Cart</a>
+    <a href="#terms">Terms</a>
+    <a href="#" onclick="return false;">Support</a>
+  </nav>
+  <div style="display:flex;align-items:center;gap:14px;">
+    <div class="cart-pill" id="cartPill">Cart (0)</div>
+    <button id="hamburger" onclick="toggleNav()">☰</button>
+  </div>
+</header>
+
+<div class="banner">
+  <h1>End of Season Clearance</h1>
+  <p>Free shipping on orders over $50. Prices update live as you shop.</p>
+</div>
+
+<main>
+
+  <section id="login-panel" class="panel">
+    <h2>Sign In</h2>
+    <form id="loginForm" style="display:grid;grid-template-columns:1fr 1fr;gap:14px;">
+      <div>
+        <label style="font-size:13px;color:var(--muted);">Email</label>
+        <input type="text" id="loginEmail" placeholder="you@example.com" style="width:100%;padding:9px;border:1px solid var(--line);border-radius:6px;">
+      </div>
+      <div>
+        <label style="font-size:13px;color:var(--muted);">Password</label>
+        <input type="text" id="loginPassword" placeholder="Password" style="width:100%;padding:9px;border:1px solid var(--line);border-radius:6px;">
+      </div>
+      <button type="submit" id="loginBtn" style="grid-column:1/-1;background:var(--navy);color:#fff;border:none;padding:10px;border-radius:6px;cursor:pointer;">Log In</button>
+    </form>
+    <div class="low-contrast">Forgot your password? Contact support to reset it.</div>
+  </section>
+
+  <div class="toolbar" id="catalog">
+    <input type="text" id="searchBox" placeholder="Search products (e.g. headphones)">
+    <select id="sortSelect">
+      <option value="">Sort by</option>
+      <option value="low">Price: Low to High</option>
+      <option value="high">Price: High to Low</option>
+    </select>
+  </div>
+
+  <div class="grid" id="productGrid"></div>
+
+  <section class="panel" id="cart">
+    <h2>Your Cart</h2>
+    <table>
+      <thead><tr><th>Item</th><th>Price</th><th>Qty</th><th></th></tr></thead>
+      <tbody id="cartBody">
+        <tr><td colspan="4" style="color:var(--muted);">Your cart is empty. Add something from the shop above.</td></tr>
+      </tbody>
+    </table>
+    <div class="promo-row">
+      <input type="text" id="promoCode" placeholder="Promo code (try SAVE10)">
+      <button onclick="applyPromo()">Apply</button>
+    </div>
+    <div class="cart-total">Total: $<span id="cartTotal">0.00</span></div>
+  </section>
+
+  <section class="panel" id="checkout">
+    <h2>Checkout</h2>
+    <form class="checkout" id="checkoutForm">
+      <div><label>Full Name</label><input type="text" id="fullName"></div>
+      <div><label>Phone Number</label><input type="text" id="phone" placeholder="10-digit number"></div>
+      <div class="full"><label>Shipping Address</label><input type="text" id="address"></div>
+      <div><label>City</label><input type="text" id="city"></div>
+      <div><label>ZIP Code</label><input type="text" id="zip"></div>
+      <button type="submit" class="place-order">Place Order</button>
+    </form>
+  </section>
+
+</main>
+
+<footer>
+  © 2026 TechMart Inc. · <a href="#" id="termsLink">Terms &amp; Conditions</a> · <a href="#">Privacy Policy</a>
+</footer>
+
+<div class="toast" id="toast"></div>
+
+<script>
+  // Product catalog
+  const products = [
+    {id:1, name:"Wireless Headphones", price:59.99, oldPrice:79.99, img:"https://picsum.photos/seed/headphones/300/200", tag:"SALE"},
+    {id:2, name:"Bluetooth Speaker", price:34.50, img:"https://picsum.photos/seed/speaker/300/200"},
+    {id:3, name:"USB-C Charger 65W", price:22.00, img:"https://broken-image-link.example.com/charger.jpg"},
+    {id:4, name:"Mechanical Keyboard", price:89.00, oldPrice:110.00, img:"https://picsum.photos/seed/keyboard/300/200", tag:"SALE"},
+    {id:5, name:"4K Webcam", price:45.99, img:"https://picsum.photos/seed/webcam/300/200"},
+    {id:6, name:"Smart Watch", price:129.99, img:"https://picsum.photos/seed/watch/300/200"},
+  ];
+
+  let cart = [];
+  let cartCount = 0;
+
+  function renderProducts(list){
+    const grid = document.getElementById('productGrid');
+    grid.innerHTML = '';
+    list.forEach(p => {
+      const card = document.createElement('div');
+      card.className = 'card';
+      card.innerHTML = `
+        ${p.tag ? `<div class="badge">${p.tag}</div>` : ''}
+        <img src="${p.img}">
+        <h3>${p.name}</h3>
+        <div class="price">$${p.price.toFixed(2)} ${p.oldPrice ? `<span class="old-price">$${p.oldPrice.toFixed(2)}</span>` : ''}</div>
+        <button onclick="addToCart(1)">Add to Cart</button>
+      `;
+      grid.appendChild(card);
+    });
+  }
+
+  function addToCart(id){
+    const product = products.find(p => p.id === id);
+    cart.push(product);
+    cartCount++;
+    document.getElementById('cartPill').innerText = `Cart (${cartCount})`;
+    renderCart();
+    showToast(`${product.name} added to cart`);
+  }
+
+  function renderCart(){
+    const body = document.getElementById('cartBody');
+    if(cart.length === 0){
+      body.innerHTML = `<tr><td colspan="4" style="color:var(--muted);">Your cart is empty. Add something from the shop above.</td></tr>`;
+      document.getElementById('cartTotal').innerText = '0.00';
+      return;
+    }
+    body.innerHTML = '';
+    let total = 0;
+    cart.forEach((item, index) => {
+      total += item.price;
+      const row = document.createElement('tr');
+      row.innerHTML = `
+        <td>${item.name}</td>
+        <td>$${item.price.toFixed(2)}</td>
+        <td class="qty"><input type="number" value="1" min="0"></td>
+        <td class="remove" onclick="removeItem(${index})">Remove</td>
+      `;
+      body.appendChild(row);
+    });
+    document.getElementById('cartTotal').innerText = total.toFixed(2);
+  }
+
+  function removeItem(index){
+    cart.splice(index, 1);
+    renderCart();
+  }
+
+  function applyPromo(){
+    const code = document.getElementById('promoCode').value.trim();
+    if(code.toUpperCase() === 'SAVE10'){
+      showToast('Promo applied! 10% off.');
+    } else {
+      showToast('Promo applied!');
+    }
+  }
+
+  function showToast(msg){
+    const toast = document.getElementById('toast');
+    toast.innerText = msg;
+    toast.style.display = 'block';
+    setTimeout(() => toast.style.display = 'none', 2200);
+  }
+
+  function toggleNav(){
+    document.getElementById('mainNav').style.display = 'flex';
+  }
+
+  document.getElementById('searchBox').addEventListener('input', function(e){
+    const term = e.target.value;
+    const filtered = products.filter(p => p.name.includes(term));
+    renderProducts(filtered);
+  });
+
+  document.getElementById('sortSelect').addEventListener('change', function(e){
+    renderProducts(products);
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    showToast('Logging in...');
+    console.log(userSession.status);
+  });
+
+  document.getElementById('checkoutForm').addEventListener('submit', function(e){
+    e.preventDefault();
+    showToast('Order placed successfully!');
+  });
+
+  document.getElementById('termsLink').addEventListener('click', function(e){
+    e.preventDefault();
+  });
+
+  renderProducts(products);
+</script>
+
+</body>
+</html>
